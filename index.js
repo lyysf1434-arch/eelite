@@ -99,12 +99,14 @@ for (let e of emojis) await msg.react(e);
 // بعد 5 دقائق
 setTimeout(async () => {
 
-await msg.reactions.removeAll();
+
 
 let results = {};
 msg.reactions.cache.forEach(r => {
 results[r.emoji.name] = r.count - 1;
 });
+
+await msg.reactions.removeAll();
 
 const names = {
 "1️⃣":"Gang War",
