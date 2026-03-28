@@ -151,8 +151,8 @@ ${text}
 
 Voting End At: It's Ended
 
-🏆 Winner:
-${winner}
+*** 🏆 Winner: ***
+*** ${  winner }  ***
 `)
 .setColor("Gold");
 
