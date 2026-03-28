@@ -4,53 +4,21 @@ const { Client, GatewayIntentBits, EmbedBuilder, REST, Routes } = require("disco
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMessageReactions,
-    GatewayIntentBits.GuildVoiceStates
+    GatewayIntentBits.GuildMessageReactions
   ]
 });
 
+// رتبة الايفنت
 const eventRoles = ["1398804818482561035", "1398804831140839514"];
-const registerChannelID = "1486929573332648007";
-const teamsLogChannelID = "1486929591648911441";
 
-const maps = {
-"1️⃣": { name: "Scrap", image: "https://i.imgur.com/1.jpg" },
-"2️⃣": { name: "RunGan", image: "https://i.imgur.com/2.jpg" },
-"3️⃣": { name: "Cinema", image: "https://i.imgur.com/3.jpg" },
-"4️⃣": { name: "Map 4", image: "https://i.imgur.com/4.jpg" }
-};
-
-const games = {
-"1️⃣": "Battle Royal",
-"2️⃣": "Back to Back",
-"3️⃣": "Gang War"
-};
-
+// تحقق رتبة
 function hasEventRole(member) {
   return eventRoles.some(r => member.roles.cache.has(r));
 }
 
-// ===== SLASH COMMANDS =====
+// ===== SLASH =====
 const commands = [
-{ name:"rules", description:"القوانين" },
-{ name:"maps", description:"تصويت المابات" },
-{ name:"games", description:"تصويت القيم" },
-{ name:"startvote", description:"تصويت كامل" },
-{ name:"teams-open", description:"فتح التيمات" },
-{ name:"teams-close", description:"قفل التيمات" },
-{ name:"distribute", description:"توزيع" },
-{
-name:"winners",
-description:"الفائزين",
-options:[
-{ name:"event", type:3, required:true, description:"اسم الفعالية"},
-{ name:"host", type:3, required:true, description:"المنظم"},
-{ name:"players", type:3, required:true, description:"الفائزين"}
-]
-}
+{ name:"vote", description:"Vote system" }
 ];
 
 // ===== READY =====
@@ -59,116 +27,113 @@ client.once("ready", async () => {
 
   const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
-  try {
-    await rest.put(
-      Routes.applicationGuildCommands(
-        process.env.CLIENT_ID,
-        process.env.GUILD_ID
-      ),
-      { body: commands }
-    );
+  await rest.put(
+    Routes.applicationGuildCommands(
+      process.env.CLIENT_ID,
+      process.env.GUILD_ID
+    ),
+    { body: commands }
+  );
 
-    console.log("✅ Slash commands registered");
-  } catch (err) {
-    console.error(err);
-  }
+  console.log("✅ Slash ready");
 });
 
-// ===== INTERACTIONS =====
+// ===== COMMAND =====
 client.on("interactionCreate", async interaction => {
 
 if (!interaction.isChatInputCommand()) return;
+if (interaction.commandName !== "vote") return;
 
-const cmd = interaction.commandName;
+if (!hasEventRole(interaction.member)) 
+return interaction.reply("❌ You don't have permission");
 
-// RULES
-if (cmd === "rules") {
-await interaction.reply("@everyone 📜 قوانين الايفنت");
-}
+// وقت النهاية
+let endTime = Math.floor((Date.now() + 5 * 60 * 1000) / 1000);
 
-// MAPS
-if (cmd === "maps") {
-
-if (!hasEventRole(interaction.member)) return interaction.reply("❌ ليس لديك صلاحية");
-
+// الرسالة
 const embed = new EmbedBuilder()
-.setTitle("🗳️ تصويت المابات")
-.setDescription("1️⃣ Scrap\n2️⃣ RunGan\n3️⃣ Cinema\n4️⃣ Map 4");
+.setTitle("🎮 Vote For Event")
+.setDescription(`
+Powered By ( EF )
+
+1️⃣ Gang War
+2️⃣ Battle Royale 2v2
+3️⃣ Battle Royale 4v4
+4️⃣ Back To Back 1v1
+5️⃣ Battle Royale 1v1
+
+Voting End At: <t:${endTime}:R>
+`)
+.setColor("#2b2d31");
 
 const msg = await interaction.reply({ embeds:[embed], fetchReply:true });
 
-for (let e of Object.keys(maps)) await msg.react(e);
+// ايموجيات
+const emojis = ["1️⃣","2️⃣","3️⃣","4️⃣","5️⃣"];
+for (let e of emojis) await msg.react(e);
 
-setTimeout(()=>{
-msg.reactions.removeAll();
+// بعد 5 دقائق
+setTimeout(async () => {
 
-let res={};
-msg.reactions.cache.forEach(r=> res[r.emoji.name]=r.count-1);
+await msg.reactions.removeAll();
 
-if (!Object.keys(res).length) return interaction.followUp("❌ ما فيه تصويت");
-
-const win = Object.entries(res).sort((a,b)=>b[1]-a[1])[0][0];
-
-interaction.followUp({
-embeds:[ new EmbedBuilder()
-.setTitle("🏆 الماب الفائز")
-.setDescription(maps[win].name)
-.setImage(maps[win].image)]
+let results = {};
+msg.reactions.cache.forEach(r => {
+results[r.emoji.name] = r.count - 1;
 });
 
-},300000);
+const names = {
+"1️⃣":"Gang War",
+"2️⃣":"Battle Royale 2v2",
+"3️⃣":"Battle Royale 4v4",
+"4️⃣":"Back To Back 1v1",
+"5️⃣":"Battle Royale 1v1"
+};
+
+// مجموع
+let total = Object.values(results).reduce((a,b)=>a+b,0);
+
+// بار
+function bar(percent) {
+let filled = Math.round(percent / 10);
+return "█".repeat(filled) + "░".repeat(10 - filled);
 }
 
-// GAMES
-if (cmd === "games") {
+// عرض النتائج
+let text = "";
 
-if (!hasEventRole(interaction.member)) return interaction.reply("❌ ليس لديك صلاحية");
+for (let key of emojis) {
+let count = results[key] || 0;
+let percent = total ? Math.round((count / total) * 100) : 0;
 
-const embed = new EmbedBuilder()
-.setTitle("🎮 تصويت القيم")
-.setDescription("1️⃣ Battle Royal\n2️⃣ Back to Back\n3️⃣ Gang War");
-
-const msg = await interaction.reply({ embeds:[embed], fetchReply:true });
-
-for (let e of Object.keys(games)) await msg.react(e);
-
-setTimeout(()=>{
-msg.reactions.removeAll();
-
-let res={};
-msg.reactions.cache.forEach(r=> res[r.emoji.name]=r.count-1);
-
-if (!Object.keys(res).length) return interaction.followUp("❌ ما فيه تصويت");
-
-const win = Object.entries(res).sort((a,b)=>b[1]-a[1])[0][0];
-
-interaction.followUp(`🏆 الفائز: ${games[win]}`);
-
-},300000);
+text += `${key} ${names[key]}\n${bar(percent)} ${percent}%\n\n`;
 }
 
-// STARTVOTE
-if (cmd === "startvote") {
-
-if (!hasEventRole(interaction.member)) return;
-
-await interaction.reply("🚀 بدأ التصويت...");
+// الفائز
+let winner = "No votes";
+if (total > 0) {
+let win = Object.entries(results).sort((a,b)=>b[1]-a[1])[0][0];
+winner = names[win];
 }
 
-// WINNERS
-if (cmd === "winners") {
+// تعديل الرسالة
+const endedEmbed = new EmbedBuilder()
+.setTitle("🎮 Vote For Event")
+.setDescription(`
+Powered By ( EF )
 
-const event = interaction.options.getString("event");
-const host = interaction.options.getString("host");
-const players = interaction.options.getString("players");
+${text}
 
-await interaction.reply({
-embeds:[ new EmbedBuilder()
-.setTitle("🏆 الفائزين")
-.setDescription(`🎮 ${event}\n👑 ${players}\n🎙️ ${host}`)
-.setColor("Gold")]
-});
-}
+Voting End At: It's Ended
+
+🏆 Winner:
+${winner}
+`)
+.setColor("Gold");
+
+await msg.edit({ embeds:[endedEmbed] });
+
+}, 300000);
 
 });
 
