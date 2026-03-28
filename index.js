@@ -57,15 +57,14 @@ let endTime = Math.floor((Date.now() + 5 * 60 * 1000) / 1000);
 // الرسالة
 const embed = new EmbedBuilder()
 .setDescription(`
-> **Powered By ( Event Team 🎉 )**
+>  ** Powered By ( Event Team 🎉 ) **
 
-###  Vote For Event
+###  Vote For Event 
 
-> The Vote Event has been created
-
+>   
 ━━━━━━━━━━━━━━━━━━━━━━
 
-⏳ **Voting End At:** <t:${endTime}:R>
+ *** Voting End At : *** <t:${endTime}:R>
 
 ━━━━━━━━━━━━━━━━━━━━━━
 
