@@ -57,7 +57,7 @@ let endTime = Math.floor((Date.now() + 5 * 60 * 1000) / 1000);
 // الرسالة
 const embed = new EmbedBuilder()
 .setDescription(`
->  ** Powered By ( Event Team 🎉 ) **
+>  **  By ( Event Team 🎉 ) **
 
 ###  Vote For Event 
 
@@ -66,29 +66,29 @@ const embed = new EmbedBuilder()
 
  *** Voting End At : *** <t:${endTime}:R>
 
-━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━  
 
 **1️⃣ — Gang War**             ***| Elite Fight | *** 
 ⠀
-                               ______________
-**2️⃣ — Battle Royale (2v2)    |_____________| **
+                             **  ______________**
+**2️⃣ — Battle Royale (2v2)     **
+⠀
+                             **  ______________**
+**3️⃣ — Battle Royale (4v4)     **
+⠀
+                             **  ______________**
+**4️⃣ — Back To Back (1v1)      **
 ⠀
                                ______________
-**3️⃣ — Battle Royale (4v4)    |_____________| **
-⠀
-                               ______________
-**4️⃣ — Back To Back (1v1)     |_____________| **
-⠀
-                               ______________
-**5️⃣ — Battle Royale (1v1)    |_____________| **
+**5️⃣ — Battle Royale (1v1)   **
 
 
-**Powered By ( Event Team 🎉 )              **
+** By ( Event Team 🎉 )              **
 
 
 ━━━━━━━━━━━━━━━━━━━━━━
 `)
-.setColor("#2b2d31");
+.setColor("#767676");
 
 const msg = await interaction.reply({ embeds:[embed], fetchReply:true });
 
@@ -142,18 +142,18 @@ winner = names[win];
 
 // تعديل الرسالة
 const endedEmbed = new EmbedBuilder()
-.setTitle("🎮 Vote For Event")
+.setTitle("***  Vote For Event ***")
 .setDescription(`
-Powered By ( EF )
+ ( EF )
 
 ${text}
 
 Voting End At: It's Ended
 
-*** 🏆 Winner: ***
-*** ${  winner }  ***
+*** Game Winner: ***
+*** ${  winner }
 `)
-.setColor("Gold");
+.setColor("#767676");
 
 await msg.edit({ embeds:[endedEmbed] });
 
