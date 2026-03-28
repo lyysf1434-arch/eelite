@@ -44,8 +44,12 @@ client.on("interactionCreate", async interaction => {
 if (!interaction.isChatInputCommand()) return;
 if (interaction.commandName !== "vote") return;
 
-if (!hasEventRole(interaction.member)) 
-return interaction.reply("❌ You don't have permission");
+if (
+  !hasEventRole(interaction.member) &&
+  !interaction.member.permissions.has("Administrator")
+) {
+  return interaction.reply("❌ You don't have permission");
+}
 
 // وقت النهاية
 let endTime = Math.floor((Date.now() + 5 * 60 * 1000) / 1000);
