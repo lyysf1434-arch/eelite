@@ -56,17 +56,38 @@ let endTime = Math.floor((Date.now() + 5 * 60 * 1000) / 1000);
 
 // الرسالة
 const embed = new EmbedBuilder()
-.setTitle("🎮 Vote For Event")
 .setDescription(`
-Powered By ( EF )
+> **Powered By ( Event Team 🎉 )**
 
-1️⃣ Gang War
-2️⃣ Battle Royale 2v2
-3️⃣ Battle Royale 4v4
-4️⃣ Back To Back 1v1
-5️⃣ Battle Royale 1v1
+###  Vote For Event
 
-Voting End At: <t:${endTime}:R>
+> The Vote Event has been created
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+⏳ **Voting End At:** <t:${endTime}:R>
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+**1️⃣ — Gang War**             ***| Elite Fight | *** 
+⠀
+                               ______________
+**2️⃣ — Battle Royale (2v2)    |_____________| **
+⠀
+                               ______________
+**3️⃣ — Battle Royale (4v4)    |_____________| **
+⠀
+                               ______________
+**4️⃣ — Back To Back (1v1)     |_____________| **
+⠀
+                               ______________
+**5️⃣ — Battle Royale (1v1)    |_____________| **
+
+
+**Powered By ( Event Team 🎉 )              **
+
+
+━━━━━━━━━━━━━━━━━━━━━━
 `)
 .setColor("#2b2d31");
 
