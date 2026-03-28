@@ -210,4 +210,41 @@ embeds:[ new EmbedBuilder()
 
 });
 
+const { REST, Routes } = require('discord.js');
+
+const commands = [
+{ name:"rules", description:"القوانين" },
+{ name:"maps", description:"تصويت المابات" },
+{ name:"games", description:"تصويت القيم" },
+{ name:"startvote", description:"تصويت كامل" },
+{ name:"teams-open", description:"فتح التيمات" },
+{ name:"teams-close", description:"قفل التيمات" },
+{ name:"distribute", description:"توزيع" },
+{
+name:"winners",
+description:"الفائزين",
+options:[
+{ name:"event", type:3, required:true, description:"اسم الفعالية"},
+{ name:"host", type:3, required:true, description:"المنظم"},
+{ name:"players", type:3, required:true, description:"الفائزين"}
+]
+}
+];
+
+client.once("ready", async () => {
+  console.log(`✅ Logged in as ${client.user.tag}`);
+
+  const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
+
+  try {
+    await rest.put(
+      Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
+      { body: commands }
+    );
+    console.log("✅ Slash commands registered");
+  } catch (err) {
+    console.error(err);
+  }
+});
+
 client.login(process.env.TOKEN);
