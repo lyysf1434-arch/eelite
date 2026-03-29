@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { Client, GatewayIntentBits, EmbedBuilder, REST, Routes } = require("discord.js");
+const { Client, GatewayIntentBits, EmbedBuilder, REST, Routes, PermissionsBitField } = require("discord.js");
 
 const client = new Client({
   intents: [
@@ -44,9 +44,12 @@ client.on("interactionCreate", async interaction => {
 if (!interaction.isChatInputCommand()) return;
 if (interaction.commandName !== "vote") return;
 
+const member = interaction.member;
+
+// صلاحيات (رول أو ادمن)
 if (
-  !hasEventRole(interaction.member) &&
-  !interaction.member.permissions.has("Administrator")
+  !hasEventRole(member) &&
+  !member.permissions.has(PermissionsBitField.Flags.Administrator)
 ) {
   return interaction.reply("❌ You don't have permission");
 }
@@ -54,41 +57,32 @@ if (
 // وقت النهاية
 let endTime = Math.floor((Date.now() + 5 * 60 * 1000) / 1000);
 
-// الرسالة
+// ===== EMBED بداية =====
 const embed = new EmbedBuilder()
+.setColor("#2b2d31")
 .setDescription(`
->  **  By ( Event Team 🎉 ) **
+> **Powered By ( EF )**
 
-###  Vote For Event 
-
->   
-━━━━━━━━━━━━━━━━━━━━━━
-
- *** Voting End At : *** <t:${endTime}:R>
-
-━━━━━━━━━━━━━━━━━━━━━━  
-
-**1️⃣ — Gang War**             ***| Elite Fight | *** 
-⠀
-                             **  ______________**
-**2️⃣ — Battle Royale (2v2)     **
-⠀
-                             **  ______________**
-**3️⃣ — Battle Royale (4v4)     **
-⠀
-                             **  ______________**
-**4️⃣ — Back To Back (1v1)      **
-⠀
-                               ______________
-**5️⃣ — Battle Royale (1v1)   **
-
-
-** By ( Event Team 🎉 )              **
-
+### 🎮 Vote For Event
 
 ━━━━━━━━━━━━━━━━━━━━━━
-`)
-.setColor("#767676");
+
+⏳ **Voting Ends:** <t:${endTime}:R>
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+**1️⃣ — Gang War**
+
+**2️⃣ — Battle Royale (2v2)**
+
+**3️⃣ — Battle Royale (4v4)**
+
+**4️⃣ — Back To Back (1v1)**
+
+**5️⃣ — Battle Royale (1v1)**
+
+━━━━━━━━━━━━━━━━━━━━━━
+`);
 
 const msg = await interaction.reply({ embeds:[embed], fetchReply:true });
 
@@ -96,16 +90,19 @@ const msg = await interaction.reply({ embeds:[embed], fetchReply:true });
 const emojis = ["1️⃣","2️⃣","3️⃣","4️⃣","5️⃣"];
 for (let e of emojis) await msg.react(e);
 
-// بعد 5 دقائق
+// ===== بعد 5 دقائق =====
 setTimeout(async () => {
 
-
-
 let results = {};
+
+// ⭐ FIX مهم: نجيب الريأكشن من Discord نفسه
+await msg.fetch();
+
 msg.reactions.cache.forEach(r => {
 results[r.emoji.name] = r.count - 1;
 });
 
+// بعد الحساب نحذف
 await msg.reactions.removeAll();
 
 const names = {
@@ -132,7 +129,7 @@ for (let key of emojis) {
 let count = results[key] || 0;
 let percent = total ? Math.round((count / total) * 100) : 0;
 
-text += `${key} ${names[key]}\n${bar(percent)} ${percent}%\n\n`;
+text += `**${key} ${names[key]}**\n${bar(percent)} ${percent}%\n\n`;
 }
 
 // الفائز
@@ -142,20 +139,29 @@ let win = Object.entries(results).sort((a,b)=>b[1]-a[1])[0][0];
 winner = names[win];
 }
 
-// تعديل الرسالة
+// ===== EMBED نهاية =====
 const endedEmbed = new EmbedBuilder()
-.setTitle("***  Vote For Event ***")
+.setColor("Gold")
 .setDescription(`
- ( EF )
+> **Powered By ( EF )**
+
+### 🎮 Vote For Event
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+⏳ **Voting Ended:** It's Ended
+
+━━━━━━━━━━━━━━━━━━━━━━
 
 ${text}
 
-Voting End At: It's Ended
+━━━━━━━━━━━━━━━━━━━━━━
 
-*** Game Winner: ***
-*** ${  winner }
-`)
-.setColor("#767676");
+🏆 **Winner**
+\`\`\`
+${winner}
+\`\`\`
+`);
 
 await msg.edit({ embeds:[endedEmbed] });
 
