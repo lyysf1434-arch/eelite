@@ -93,7 +93,6 @@ for (let e of emojis) await msg.react(e);
 // ===== بعد 5 دقائق =====
 setTimeout(async () => {
 
-await msg.reactions.removeAll();
 
 const endedEmbed = new EmbedBuilder()
 .setColor("#2b2d31")
